@@ -1,0 +1,15 @@
+# Ignore Jupyter Notebook checkpoints
+**/.ipynb_checkpoints/
+
+# Ignore Python cache files
+**/__pycache__/
+**/.pytest_cache/
+
+# Ignore environment variables files
+.env
+*.env
+.env.*
+
+# Ignore temp .mp3, .wav files
+*.mp3
+*.wav
