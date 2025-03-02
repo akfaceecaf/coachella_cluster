@@ -13,3 +13,6 @@
 # Ignore temp .mp3, .wav files
 *.mp3
 *.wav
+
+# Ignore MAC specific files
+.DS_Store
