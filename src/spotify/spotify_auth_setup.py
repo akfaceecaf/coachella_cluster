@@ -4,7 +4,7 @@ from dotenv import load_dotenv, set_key, dotenv_values
 class SpotifyAuthSetup:
     def __init__(self):
         self.env_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../config", "spotify.env")
-        self.required_keys = ['CLIENT_ID','CLIENT_SECRET','REDIRECT_URI']
+        self.required_keys = ['CLIENT_ID','CLIENT_SECRET','REDIRECT_URI','USER_ID']
 
         # Check that an env file already exists, if not create a new one
         self.setup_env()
@@ -56,5 +56,6 @@ class SpotifyAuthSetup:
         return {
             "CLIENT_ID" : os.getenv('CLIENT_ID'),
             "CLIENT_SECRET" : os.getenv('CLIENT_SECRET'),
-            "REDIRECT_URI" : os.getenv('REDIRECT_URI')
+            "REDIRECT_URI" : os.getenv('REDIRECT_URI'),
+            "USER_ID": os.getenv('USER_ID')
         }

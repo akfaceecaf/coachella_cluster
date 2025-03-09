@@ -23,5 +23,11 @@ def load_data(filename, **kwargs):
     else:
         raise FileNotFoundError('Missing file.')
 
-def create_unique_ids(df : pd.DataFrame) -> list[str]:
-    return ['T' + str(i).zfill(4) for i in range(1, len(df) + 1)]
+def override_artist_list(artist_list : list, exclusions : list, inclusions : list):
+    for artist in exclusions:
+        if artist in artist_list:
+            artist_list.remove(artist)
+
+    artist_list.extend(inclusions)
+    artist_list = sorted(artist_list)
+    return artist_list

@@ -1,64 +1,52 @@
-import matplotlib.pyplot as plt
-from PIL.Image import preinit
-from scipy.cluster.vq import kmeans
-from sklearn.metrics import silhouette_score
-from tensorflow.python.ops.distributions.util import embed_check_categorical_event_shape
-
-from src.scraper import *
-from src.spotify import *
-from src.utils import *
-from src.youtube import *
-from src.feature_extraction import MusicFeatureExtractor
-from src.features import FeatureExtractor
-import essentia as es
-es.log.infoActive = False
-es.log.warningActive = False
-from essentia.standard import TensorflowPredictMusiCNN, MonoLoader, TensorflowPredict2D
-from models import embed_models
-import pandas as pd
-import numpy as np
-pd.options.display.max_rows = None
-pd.options.display.max_columns = None
-pd.set_option('display.expand_frame_repr', False)
-import re
+import argparse
+from scripts.run_scraper import run_scraper
+# import matplotlib.pyplot as plt
+# from PIL.Image import preinit
+# from scipy.cluster.vq import kmeans
+# from sklearn.metrics import silhouette_score
+# from tensorflow.python.ops.distributions.util import embed_check_categorical_event_shape
+#
+# from src.scraper import *
+# from src.spotify import *
+# from src.utils import *
+# from src.youtube import *
+# from src.feature_extraction import MusicFeatureExtractor
+# from src.features import FeatureExtractor
+# import essentia as es
+# es.log.infoActive = False
+# es.log.warningActive = False
+# from essentia.standard import TensorflowPredictMusiCNN, MonoLoader, TensorflowPredict2D
+# from models import embed_models
+# import pandas as pd
+# import numpy as np
+# pd.options.display.max_rows = None
+# pd.options.display.max_columns = None
+# pd.set_option('display.expand_frame_repr', False)
+# import re
 
 
 def main():
-    # Initialize scraper and get artist list data
-    # url = "https://www.coachella.com/lineup"
-    # scraper = CoachellaScraper(url)
-    # scraper.load_page()
-    # artist_list = scraper.fetch_artist_list()
-    # scraper.close_scraper()
-    # scraper.save_artists(artist_list)
-    #
-    # # Adjustments for multiple artists acts
-    # exclusions = ["DIXON X JIMI JULES",
-    #               "GUSTAVO DUDAMEL & LA PHIL",
-    #               "MIND AGAINST X MASSANO",
-    #               "PETE TONG X AHMED SPINS",
-    #               "SEUN KUTI & EGYPT 80"]
-    #
-    # inclusions = ['DIXON',
-    #               'JIMI JULES',
-    #               'GUSTAVO DUDAMEL',
-    #               'LA PHIL',
-    #               'MIND AGAINST',
-    #               'MASSANO',
-    #               'PETE TONG',
-    #               'AHMED SPINS',
-    #               'SEUN KUTI',
-    #               'EGYPT 80']
-    #
-    # for x in exclusions:
-    #     artist_list.remove(x)
-    #
-    # artist_list.extend(inclusions)
-    # artist_list = sorted(artist_list)
+    parser = argparse.ArgumentParser(description='Coachella Cluster Analysis')
+
+    parser.add_argument('scraper', choices=['fetch','process'], help='choose method')
+    args = parser.parse_args()
+
+    if args.scraper == "fetch":
+        print('Running scraper...')
+        run_scraper()
+    if args.scraper == "process":
+        print('Processing artist list...')
+
+
+    for x in exclusions:
+        artist_list.remove(x)
+
+    artist_list.extend(inclusions)
+    artist_list = sorted(artist_list)
 
     # Initialize Spotify Connection
-    auth= SpotifyAuth()
-    sp = SpotifyData(auth.access_token)
+    # auth= SpotifyAuth()
+    # sp = SpotifyData(auth.access_token)
 
     # Get Spotify ID for every artist
     # artists = sp.get_multiple_artists(artist_list)
@@ -150,7 +138,7 @@ def main():
     # save_data(songs, 'songs_data_edited.csv')
 
     # get youtube urls of songs
-    songs = load_data('songs_data_edited.csv', index_col = 0)
+    # songs = load_data('songs_data_edited.csv', index_col = 0)
     # youtube_urls = songs.apply(lambda x: extract_song_url(x['track_name'],x['name']), axis=1)
     # failed_songs = youtube_urls[youtube_urls.isna().all(axis=1)==True].index
     # success_songs = youtube_urls[youtube_urls.isna().all(axis=1)==False].index
@@ -225,40 +213,40 @@ def main():
     # success_tracks = pd.DataFrame(success_tracks)
     # save_data(success_tracks, 'embedded_features.csv', overwrite=True, index=False)
 
-    embedded_features = load_data('embedded_features.csv', index_col=0)
-    # returns 328D embedded feature vectors
-    # print(embedded_features.shape)
-    embedded_features.index.name = 'track_id'
+    # embedded_features = load_data('embedded_features.csv', index_col=0)
+    # # returns 328D embedded feature vectors
+    # # print(embedded_features.shape)
+    # embedded_features.index.name = 'track_id'
+    #
+    # embedded_features = songs[['track_id','artist_id']].merge(embedded_features, how='outer',on='track_id',indicator=True)
+    # embedded_features = embedded_features.groupby('artist_id').mean(numeric_only=True)
+    # embedded_features.columns = [f'Feature {i}' for i in embedded_features.columns]
+    # # print(embedded_features.head())
+    # # print(embedded_features.shape)
+    #
+    # # Cluster Analysis
+    # from sklearn.preprocessing import StandardScaler
+    # from sklearn.decomposition import PCA
+    #
+    # features = embedded_features.columns
+    # X = embedded_features.values
+    #
+    # # scale data
+    # scaler = StandardScaler()
+    # X_scaled = scaler.fit_transform(X)
+    #
+    # components_range = range(1,min(len(features)+1,100))
+    # variances = []
+    # for c in components_range:
+    #     pca = PCA(n_components=c)
+    #     # reduce dimensionality into n components which are weighted sums of the original feature vectors
+    #     pca.fit(X_scaled)
+    #     variance = pca.explained_variance_ratio_.sum()
+    #     variances.append(variance)
+    #     print(f'Explained variance for {c} components: {variance:,.2%}')
 
-    embedded_features = songs[['track_id','artist_id']].merge(embedded_features, how='outer',on='track_id',indicator=True)
-    embedded_features = embedded_features.groupby('artist_id').mean(numeric_only=True)
-    embedded_features.columns = [f'Feature {i}' for i in embedded_features.columns]
-    # print(embedded_features.head())
-    # print(embedded_features.shape)
-
-    # Cluster Analysis
-    from sklearn.preprocessing import StandardScaler
-    from sklearn.decomposition import PCA
-
-    features = embedded_features.columns
-    X = embedded_features.values
-
-    # scale data
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
-
-    components_range = range(1,min(len(features)+1,100))
-    variances = []
-    for c in components_range:
-        pca = PCA(n_components=c)
-        # reduce dimensionality into n components which are weighted sums of the original feature vectors
-        pca.fit(X_scaled)
-        variance = pca.explained_variance_ratio_.sum()
-        variances.append(variance)
-        print(f'Explained variance for {c} components: {variance:,.2%}')
-
-    import seaborn as sns
-    import matplotlib.pyplot as plt
+    # import seaborn as sns
+    # import matplotlib.pyplot as plt
     #
     # plt.figure(figsize=(14,10))
     # sns.lineplot(x=components_range, y=variances, marker='o', color='r')
@@ -270,10 +258,10 @@ def main():
     # plt.ylabel('Explained Variance Ratio')
     # plt.show()
 
-    n_components = 20
-    pca = PCA(n_components=n_components)
-    X_pca = pca.fit_transform(X_scaled)
-    print(X_pca.shape)
+    # n_components = 20
+    # pca = PCA(n_components=n_components)
+    # X_pca = pca.fit_transform(X_scaled)
+    # print(X_pca.shape)
 
     # Analyze What Features Have the Most Weight to Each Column
     # component = pca.components_[0]
@@ -283,20 +271,20 @@ def main():
     # print('Features:', *top_features)
     # print('Weights:', *weights)
 
-    from sklearn.cluster import KMeans
-    from sklearn.metrics import silhouette_score
-    cluster_range = range(2, 20)
-    inertias = []
-    silhouette_scores = []
-    for c in cluster_range:
-        kmeans = KMeans(n_clusters=c, random_state=42)
-        labels = kmeans.fit_predict(X_pca)
-        inertia = kmeans.inertia_
-        inertias.append(inertia)
-        s_score = silhouette_score(X_pca, labels)
-        silhouette_scores.append(s_score)
-        print(f'Inertia for {c} clusters: {inertia:,.0f}')
-        print(f'Silhouette Score for {c} clusters: {s_score:,.2f}')
+    # from sklearn.cluster import KMeans
+    # from sklearn.metrics import silhouette_score
+    # cluster_range = range(2, 20)
+    # inertias = []
+    # silhouette_scores = []
+    # for c in cluster_range:
+    #     kmeans = KMeans(n_clusters=c, random_state=42)
+    #     labels = kmeans.fit_predict(X_pca)
+    #     inertia = kmeans.inertia_
+    #     inertias.append(inertia)
+    #     s_score = silhouette_score(X_pca, labels)
+    #     silhouette_scores.append(s_score)
+    #     print(f'Inertia for {c} clusters: {inertia:,.0f}')
+    #     print(f'Silhouette Score for {c} clusters: {s_score:,.2f}')
 
     # plt.figure(figsize=(14,10))
     # sns.lineplot(x=cluster_range, y=inertias, marker='o', color='r')
@@ -314,33 +302,33 @@ def main():
     # plt.ylabel('Silhouette Score')
     # plt.show()
 
-    n_clusters = 4
-    kmeans = KMeans(n_clusters=n_clusters, random_state=1)
-    labels = kmeans.fit_predict(X_pca)
-    labels = np.array([i+1 for i in labels])
-    inertia = kmeans.inertia_
-    s_score = silhouette_score(X_pca, labels)
-
-    # # save model
-    # import pickle
-    # with open('data/kmeans_cluster_model1.sav', 'wb') as myFile:
-    #     pickle.dump(kmeans, myFile)
+    # n_clusters = 4
+    # kmeans = KMeans(n_clusters=n_clusters, random_state=1)
+    # labels = kmeans.fit_predict(X_pca)
+    # labels = np.array([i+1 for i in labels])
+    # inertia = kmeans.inertia_
+    # s_score = silhouette_score(X_pca, labels)
     #
-    import plotly.express as px
-    n_components = 2
-    pca = PCA(n_components=n_components)
-    X_pca = pca.fit_transform(X_scaled)
-    plot_df = pd.DataFrame(index=embedded_features.index, data=X_pca, columns=['PCA1','PCA2'])
-    plot_df = plot_df.merge(songs[['artist_id','name']].drop_duplicates(), on='artist_id', how='outer')
-
-    # simplified projection of seeing data using 2 PCA components (explains ~50% of variance)
-    fig = px.scatter(plot_df, x='PCA1',y='PCA2',
-                     color=[str(x) for x in labels],
-                     hover_data=['name'],
-                     title='K-means Cluster Visualization (PCA 2D Projection)',
-                     labels = {"color": "Cluster Group"})
-    fig.update_traces(marker=dict(size=8))
-    fig.show()
+    # # # save model
+    # # import pickle
+    # # with open('data/kmeans_cluster_model1.sav', 'wb') as myFile:
+    # #     pickle.dump(kmeans, myFile)
+    # #
+    # import plotly.express as px
+    # n_components = 2
+    # pca = PCA(n_components=n_components)
+    # X_pca = pca.fit_transform(X_scaled)
+    # plot_df = pd.DataFrame(index=embedded_features.index, data=X_pca, columns=['PCA1','PCA2'])
+    # plot_df = plot_df.merge(songs[['artist_id','name']].drop_duplicates(), on='artist_id', how='outer')
+    #
+    # # simplified projection of seeing data using 2 PCA components (explains ~50% of variance)
+    # fig = px.scatter(plot_df, x='PCA1',y='PCA2',
+    #                  color=[str(x) for x in labels],
+    #                  hover_data=['name'],
+    #                  title='K-means Cluster Visualization (PCA 2D Projection)',
+    #                  labels = {"color": "Cluster Group"})
+    # fig.update_traces(marker=dict(size=8))
+    # fig.show()
 
     # Create Playlists
     # temp = pd.concat([plot_df,pd.Series(labels,name='cluster')], axis=1)

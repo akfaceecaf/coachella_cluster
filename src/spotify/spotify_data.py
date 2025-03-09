@@ -5,11 +5,11 @@ import urllib
 import os
 
 class SpotifyData:
-    def __init__(self, access_token):
+    def __init__(self, access_token : str, user_id : str):
         self.access_token = access_token
         self.base_url = 'https://api.spotify.com/v1/'
         self.headers = {"Authorization": f"Bearer {self.access_token}"}
-        self.user_id = 'YOUR_USERID'
+        self.user_id = user_id
 
     def search_for_artist(self, artist) -> (str, str):
         artist_qry = urllib.parse.quote(artist)
