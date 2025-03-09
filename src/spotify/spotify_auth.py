@@ -16,6 +16,7 @@ class SpotifyAuth:
         self.env_file = auth_setup.env_file
         self.access_token = os.getenv("ACCESS_TOKEN")
         self.refresh_token = os.getenv("REFRESH_TOKEN")
+        self.user_id = os.getenv("USER_ID")
 
         if not self.access_token:
             # Get authorization code
