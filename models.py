@@ -6,7 +6,7 @@ embed_models = [
          model_file='msd-musicnn-1.pb',
          algorithm=TensorflowPredictMusiCNN,
          output="model/dense/BiasAdd"),
-    # audio embedding extractor trained to predict tags from Youtube videos, 16000 SR
+    # # audio embedding extractor trained to predict tags from Youtube videos, 16000 SR
     # dict(name='VGGish',
     #      model_file='audioset-vggish-3.pb',
     #      algorithm=TensorflowPredictVGGish,
