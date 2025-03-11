@@ -2,7 +2,6 @@ import pandas as pd
 import yt_dlp
 from pandas import Series
 
-
 def search_youtube(search_qry : str, max_results : int=5):
     ydl_opts = dict(skip_download=True,
                     quiet=True,
@@ -18,27 +17,30 @@ def search_youtube(search_qry : str, max_results : int=5):
     else:
         return []
 
-def extract_song_url(song : str, artist : str) -> Series:
+def extract_song_url(song : str, artist : str, override_url : str) -> Series:
     max_results = 1
     search_qry = f'{song} - {artist} (official audio)'
 
     try:
-        results = search_youtube(search_qry, max_results)
-        if results:
-            result = results[0]
-            print(f'Result found for:', search_qry)
-            return pd.Series({
-                'youtube_title': result['title'],
-                'channel': result['channel'],
-                'duration': result['duration'],
-                'views': result['view_count'],
-                'categories': result['categories'],
-                'tags': result['tags'],
-                'url': result['original_url']
-            })
+        if override_url:
+            return search_youtube_url(override_url)
         else:
-            print('No results returned.')
-            return pd.Series()
+            results = search_youtube(search_qry, max_results)
+            if results:
+                result = results[0]
+                print(f'Result found for:', search_qry)
+                return pd.Series({
+                    'youtube_title': result['title'],
+                    'channel': result['channel'],
+                    'duration': result['duration'],
+                    'views': result['view_count'],
+                    'categories': result['categories'],
+                    'tags': result['tags'],
+                    'url': result['original_url']
+                })
+            else:
+                print('No results returned.')
+                return pd.Series()
     except Exception as e:
         print('Error fetching results.', e)
         return pd.Series()
